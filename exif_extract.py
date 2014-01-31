@@ -4,6 +4,7 @@ import os
 import fnmatch
 import sys
 import exifread
+import hashlib
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -13,12 +14,14 @@ parser.add_option("-i", "--indir", type="string",
                   help="input directory",
                   dest="indir", default=".")
 
-parser.add_option("-o", "--odir", type="string",
-                  help="output dir",
-                  dest="odir",default=".")
-
 options, arguments = parser.parse_args()
 
+def hashfile(afile, hasher, blocksize=65536):
+    buf = afile.read(blocksize)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = afile.read(blocksize)
+    return hasher.hexdigest()
 
 mimatches = []
 for root, dirnames, filenames in os.walk(options.indir):
@@ -26,4 +29,6 @@ for root, dirnames, filenames in os.walk(options.indir):
         ifile = os.path.join(root, filename)
         f = open(ifile,'r')
         tags = exifread.process_file(f)
-        print 'infile = %s, date created = %s' % (ifile,tags['EXIF DateTimeDigitized'])
+        pichash = hashfile(open(ifile, 'rb'), hashlib.sha256())
+        print 'infile = %s, date created = %s, hash = %s' % (ifile,tags['EXIF DateTimeDigitized'],pichash[:16])
+
