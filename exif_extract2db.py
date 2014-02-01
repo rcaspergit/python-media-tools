@@ -72,8 +72,6 @@ for root, dirnames, filenames in os.walk(options.indir):
                split_tmp = tmp.split()
                gg = split_tmp[0].replace(':','-')
                picdate = gg + '\t ' + split_tmp[1]
-           else:
-               picedate = '1970-01-01 00:00:00'
         except:
               print '%s  had an error' % ifile
         pichash = hashfile(open(ifile, 'rb'), hashlib.sha256())
