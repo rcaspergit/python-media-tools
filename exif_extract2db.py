@@ -61,13 +61,23 @@ mimatches = []
 for root, dirnames, filenames in os.walk(options.indir):
     for filename in fnmatch.filter(filenames,'*.jpg'):
         ifile = os.path.join(root, filename)
+        print ifile
         f = open(ifile,'r')
-        tags = exifread.process_file(f)
+        picdate = '0-0-0 00:00:00'
+        try:
+           tags = exifread.process_file(f)
+           if 'EXIF DateTimeDigitized' in tags.keys():
+               picdate = tags['EXIF DateTimeDigitized']
+               tmp = '%s' % picdate
+               split_tmp = tmp.split()
+               gg = split_tmp[0].replace(':','-')
+               picdate = gg + '\t ' + split_tmp[1]
+           else:
+               picedate = '1970-01-01 00:00:00'
+        except:
+              print '%s  had an error' % ifile
         pichash = hashfile(open(ifile, 'rb'), hashlib.sha256())
-        picdate = tags['EXIF DateTimeDigitized']
-        print 'infile = %s, date created = %s, hash = %s' % (ifile,picdate,pichash[:16])
         the_cmd = insert_cmd % (root,filename,pichash,picdate)
-#        print the_cmd
         commit_counter = commit_counter +1
         cur.execute(the_cmd)
         if (commit_counter > 100) :
