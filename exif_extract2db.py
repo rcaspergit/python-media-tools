@@ -59,7 +59,7 @@ insert_cmd = '''INSERT INTO pic_tbl ( pic_path,pic_author,pic_hash,pic_date)
 commit_counter = 0
 mimatches = []
 for root, dirnames, filenames in os.walk(options.indir):
-    for filename in fnmatch.filter(filenames,'*.jpg'):
+    for filename in fnmatch.filter(filenames,'*.jpg') + fnmatch.filter(filenames,'*.JPG'):
         ifile = os.path.join(root, filename)
         print ifile
         f = open(ifile,'r')
